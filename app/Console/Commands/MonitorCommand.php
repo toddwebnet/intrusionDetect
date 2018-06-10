@@ -16,7 +16,7 @@ class MonitorCommand extends Command
     public function handle()
     {
         $this->leaveIfAlreadyRunning();
-        return;
+
         while (true) {
             foreach (NetworkService::arpScan() as $mac => $data) {
                 IpLoggingService::logIp($mac, $data);
