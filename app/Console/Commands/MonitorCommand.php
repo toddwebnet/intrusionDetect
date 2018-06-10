@@ -1,9 +1,11 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Mail\DeployNotification;
 use App\Services\IpLoggingService;
 use App\Services\NetworkService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 
 class MonitorCommand extends Command
 {
@@ -13,16 +15,17 @@ class MonitorCommand extends Command
 
     public function handle()
     {
-        self::leaveIfAlreadyRunning();
+        $this->leaveIfAlreadyRunning();
         while (true) {
             foreach (NetworkService::arpScan() as $mac => $data) {
                 IpLoggingService::logIp($mac, $data);
             }
+            $this->checkForIntrusions();
             sleep(60);
         }
     }
 
-    function leaveIfAlreadyRunning()
+    private function leaveIfAlreadyRunning()
     {
         $myPid = getmypid();
         $cmdPattern = "intrusionDetect/artisan util:monitor";
@@ -34,6 +37,15 @@ class MonitorCommand extends Command
                 print "leaving";
                 exit();
             }
+        }
+    }
+
+    private function checkForIntrusions()
+    {
+        foreach (IpLoggingService::getNewFiles() as $file) {
+            $data = json_decode(file_get_contents($file));
+            Mail::to("toddwebnet@gmail.com")->send(new DeployNotification($data));
+            unlink($file);
         }
     }
 }
