@@ -12,6 +12,8 @@ class MonitorCommand extends Command
 
     public function handle()
     {
+        NetworkService::arpScan();
+        return;
         for ($x = 1; $x < 255; $x++) {
             $ip = "192.168.11.{$x}";
             print $ip . " - ";
@@ -22,6 +24,6 @@ class MonitorCommand extends Command
                 print "up\n";
             }
         }
-        
+
     }
 }
