@@ -13,6 +13,7 @@ class MonitorCommand extends Command
 
     public function handle()
     {
+        self::leaveIfAlreadyRunning();
         while (true) {
             foreach (NetworkService::arpScan() as $mac => $data) {
                 IpLoggingService::logIp($mac, $data);
@@ -24,8 +25,8 @@ class MonitorCommand extends Command
     function leaveIfAlreadyRunning()
     {
         $myPid = getmypid();
-        $cmdPattern = "/usr/bin/php ./snap.php";
-        $cmd = 'ps -ef | awk \'/snap.php/{print $2"@"$8" "$9}\'';
+        $cmdPattern = "artisan util:monitor";
+        $cmd = 'ps -ef | awk \'/artisan util:monitor/{print $2"@"$8" "$9}\'';
         foreach (NetworkService::runCmd($cmd) as $line) {
             $ar = explode("@", $line);
             if ($ar[1] == $cmdPattern && $ar[0] != $myPid) {
