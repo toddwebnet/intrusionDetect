@@ -16,6 +16,7 @@ class MonitorCommand extends Command
     public function handle()
     {
         $this->leaveIfAlreadyRunning();
+        return;
         while (true) {
             foreach (NetworkService::arpScan() as $mac => $data) {
                 IpLoggingService::logIp($mac, $data);
@@ -28,13 +29,28 @@ class MonitorCommand extends Command
     private function leaveIfAlreadyRunning()
     {
         $myPid = getmypid();
-        $cmdPattern = "intrusionDetect/artisan util:monitor";
-        $cmd = 'ps -ef | awk \'/artisan util:monitor/{print $2"@"$8" "$9" " $10}\'';
+        $cmdPattern = "php /home/jtodd/intrusionDetect/artisan util:monitor";
+        $cmd = 'ps -a | grep artisan';
+        $results = [];
+
         foreach (NetworkService::runCmd($cmd) as $line) {
-            $ar = explode("@", $line);
-            print $line . "\n";
-            if (strpos($ar[1], $cmdPattern) && $ar[0] != $myPid) {
-                print "leaving";
+            $flag = false;
+            if (preg_match("/bin\/sh/i", $line)) {
+                continue;
+            }
+            if (preg_match("/php/i", $line)) {
+                $pid = null;
+                foreach (explode(" ", $line) as $proc) {
+                    if (!is_numeric($pid) && is_numeric($proc)) {
+                        $pid = (int)$proc;
+                    }
+                    if ($proc == 'util:monitor') {
+                        $flag = true;
+                    }
+                }
+            }
+            if ($flag && $myPid != $pid) {
+                print "\nleaving\n";
                 exit();
             }
         }
