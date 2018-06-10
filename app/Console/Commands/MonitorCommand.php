@@ -25,7 +25,7 @@ class MonitorCommand extends Command
     function leaveIfAlreadyRunning()
     {
         $myPid = getmypid();
-        $cmdPattern = "/artisan util:monitor";
+        $cmdPattern = "intrusionDetect/artisan util:monitor";
         $cmd = 'ps -ef | awk \'/artisan util:monitor/{print $2"@"$8" "$9" " $10}\'';
         foreach (NetworkService::runCmd($cmd) as $line) {
             $ar = explode("@", $line);
