@@ -25,13 +25,11 @@ class MonitorCommand extends Command
     function leaveIfAlreadyRunning()
     {
         $myPid = getmypid();
-        $cmdPattern = "artisan util:monitor";
+        $cmdPattern = "/artisan util:monitor";
         $cmd = 'ps -ef | awk \'/artisan util:monitor/{print $2"@"$8" "$9" " $10}\'';
         foreach (NetworkService::runCmd($cmd) as $line) {
-            print $line . "\n";
             $ar = explode("@", $line);
-            print strpos($ar[1], $cmdPattern);
-            print "\n\n";
+            print $line . "\n";
             if (strpos($ar[1], $cmdPattern) && $ar[0] != $myPid) {
                 print "leaving";
                 exit();
