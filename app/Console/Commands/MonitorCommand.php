@@ -30,7 +30,7 @@ class MonitorCommand extends Command
         foreach (NetworkService::runCmd($cmd) as $line) {
             print $line . "\n";
             $ar = explode("@", $line);
-            if ($ar[1] == $cmdPattern && $ar[0] != $myPid) {
+            if (strpos($cmdPattern, $ar[1]) && $ar[0] != $myPid) {
                 print "leaving";
                 exit();
             }
