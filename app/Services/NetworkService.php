@@ -47,7 +47,8 @@ class NetworkService
             $results[$ip] = [
                 'mac' => $mac,
                 'descr' => $desc,
-                'hostname' => $hostname
+                'hostname' => $hostname,
+                'ts' => time(),
             ];
         }
         return $results;

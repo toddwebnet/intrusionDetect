@@ -12,18 +12,11 @@ class MonitorCommand extends Command
 
     public function handle()
     {
-        dump(NetworkService::arpScan());
-        return;
-        for ($x = 1; $x < 255; $x++) {
-            $ip = "192.168.11.{$x}";
-            print $ip . " - ";
-            $ping = NetworkService::ping($ip);
-            if ($ping == 0) {
-                print "down\n";
-            } else {
-                print "up\n";
-            }
+        while(true) {
+            dump(NetworkService::arpScan());
+            sleep(1);
         }
+
 
     }
 }
