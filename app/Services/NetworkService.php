@@ -44,7 +44,8 @@ class NetworkService
             $mac = $matches[2];
             $desc = $matches[3];
             $hostname = gethostbyaddr($ip);
-            $results[$ip] = [
+            $results[str_replace(':', '.', $mac)] = [
+                'ip' => $ip,
                 'mac' => $mac,
                 'descr' => $desc,
                 'hostname' => $hostname,
