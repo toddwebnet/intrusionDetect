@@ -30,16 +30,12 @@ class MonitorCommand extends Command
     {
         $myPid = getmypid();
         print "\nPId: {$myPid}\n";
-        $cmdPattern = "php /home/jtodd/intrusionDetect/artisan util:monitor";
         $cmd = 'ps -aux | grep artisan';
         $results = [];
 
         foreach (NetworkService::runCmd($cmd) as $line) {
             print $line . "\n";
             $flag = false;
-            if (preg_match("/bin\/sh/i", $line)) {
-                continue;
-            }
             if (preg_match("/php/i", $line)) {
                 $pid = null;
                 foreach (explode(" ", $line) as $proc) {
