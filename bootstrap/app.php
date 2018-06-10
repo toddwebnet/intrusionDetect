@@ -51,5 +51,5 @@ $app->singleton(
 | from the actual running of the application and sending responses.
 |
 */
-
+date_default_timezone_set("America/Chicago");
 return $app;

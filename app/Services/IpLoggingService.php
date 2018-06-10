@@ -13,11 +13,10 @@ class IpLoggingService
             mkdir($storagePath);
         }
         $filePath = $storagePath . "/{$mac}.json";
-        $data = json_encode($data);
         if (!file_exists($filePath)) {
             self::saveNewFile($mac, $data);
         }
-        file_put_contents($filePath, $data);
+        file_put_contents($filePath, json_encode($data));
     }
 
     public static function saveNewFile($mac, $data)
@@ -29,8 +28,6 @@ class IpLoggingService
             mkdir($storagePath);
         }
         $filePath = $storagePath . "/{$mac}.json";
-        $data = json_encode($data);
-
-        file_put_contents($filePath, $data);
+        file_put_contents($filePath, json_encode($data));
     }
 }
