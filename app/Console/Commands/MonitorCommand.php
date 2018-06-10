@@ -28,6 +28,7 @@ class MonitorCommand extends Command
         $cmdPattern = "artisan util:monitor";
         $cmd = 'ps -ef | awk \'/artisan util:monitor/{print $2"@"$8" "$9}\'';
         foreach (NetworkService::runCmd($cmd) as $line) {
+            print $line . "\n";
             $ar = explode("@", $line);
             if ($ar[1] == $cmdPattern && $ar[0] != $myPid) {
                 print "leaving";
