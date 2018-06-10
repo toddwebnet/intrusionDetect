@@ -13,8 +13,25 @@ class MonitorCommand extends Command
 
     public function handle()
     {
-        foreach (NetworkService::arpScan() as $mac => $data) {
-            IpLoggingService::logIp($mac, $data);
+        while (true) {
+            foreach (NetworkService::arpScan() as $mac => $data) {
+                IpLoggingService::logIp($mac, $data);
+            }
+            sleep(60);
+        }
+    }
+
+    function leaveIfAlreadyRunning()
+    {
+        $myPid = getmypid();
+        $cmdPattern = "/usr/bin/php ./snap.php";
+        $cmd = 'ps -ef | awk \'/snap.php/{print $2"@"$8" "$9}\'';
+        foreach (NetworkService::runCmd($cmd) as $line) {
+            $ar = explode("@", $line);
+            if ($ar[1] == $cmdPattern && $ar[0] != $myPid) {
+                print "leaving";
+                exit();
+            }
         }
     }
 }

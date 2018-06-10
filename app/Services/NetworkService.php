@@ -55,4 +55,13 @@ class NetworkService
         return $results;
     }
 
+    public static function runCmd($cmd)
+    {
+        ob_start();
+        exec("{$cmd} 2> /dev/null", $output, $result);
+        // $op = ob_get_contents();
+        ob_end_clean();
+        return $output;
+    }
+
 }
