@@ -28,7 +28,7 @@ class NetworkService
     public static function arpScan()
     {
         // Must be run as root
-        $arp_scan = shell_exec('arp-scan --interface=eth0 --localnet');
+        $arp_scan = shell_exec('arp-scan --localnet');
         $arp_scan = explode("\n", $arp_scan);
         $matches = null;
         foreach($arp_scan as $scan) {
