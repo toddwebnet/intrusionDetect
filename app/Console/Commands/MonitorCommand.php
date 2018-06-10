@@ -12,7 +12,7 @@ class MonitorCommand extends Command
 
     public function handle()
     {
-        NetworkService::arpScan();
+        dump(NetworkService::arpScan());
         return;
         for ($x = 1; $x < 255; $x++) {
             $ip = "192.168.11.{$x}";
