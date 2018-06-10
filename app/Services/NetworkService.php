@@ -44,7 +44,7 @@ class NetworkService
             $desc = $matches[3];
 
             echo "Found device with mac address $mac ($desc) and ip $ip\n";
-            self::arp($ip);
+            self::getHostname($ip);
         }
     }
 
