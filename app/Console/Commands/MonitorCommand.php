@@ -28,8 +28,12 @@ class MonitorCommand extends Command
 
     private function leaveIfAlreadyRunning()
     {
+        if(file_exists('/tmp/artisan_util_monitor')){
+            print "leaving";
+            exit();
+        }
         $myPid = getmypid();
-        print "\nPId: {$myPid}\n";
+        file_put_contents('/tmp/artisan_util_monitor', $myPid);
         $cmd = 'ps -aux | grep artisan';
         $results = [];
 
