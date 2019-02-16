@@ -5,6 +5,7 @@ use App\Mail\DeployNotification;
 use App\Services\IpLoggingService;
 use App\Services\NetworkService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class MonitorCommand extends Command
@@ -61,6 +62,7 @@ class MonitorCommand extends Command
     private function checkForIntrusions()
     {
         foreach (IpLoggingService::getNewFiles() as $file) {
+            Log::info("Dumping File: {$file}");
             $data = json_decode(file_get_contents($file));
             Mail::to("toddwebnet@gmail.com")->send(new DeployNotification($data));
             unlink($file);
