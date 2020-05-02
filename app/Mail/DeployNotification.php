@@ -37,8 +37,11 @@ class DeployNotification extends Mailable
      */
     public function build()
     {
-        return $this->from(env("MAIL_FROM_ADDRESS"))
-            ->to(env('MAIL_TO_ADDRESS'))
+
+        $from = env("MAIL_FROM_ADDRESS");
+        $to = env('MAIL_TO_ADDRESS');
+        return $this->from($from)
+            ->to($to)
             ->text('mails.deploy')
             ->with($this->data);
     }
