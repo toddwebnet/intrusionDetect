@@ -64,7 +64,7 @@ class MonitorCommand extends Command
         foreach (IpLoggingService::getNewFiles() as $file) {
             Log::info("Dumping File: {$file}");
             $data = json_decode(file_get_contents($file));
-            Mail::to("toddwebnet@gmail.com")->send(new DeployNotification($data));
+            Mail::to(env('TO_EMAIL'))->send(new DeployNotification($data));
             unlink($file);
         }
     }
