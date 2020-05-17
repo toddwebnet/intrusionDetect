@@ -2,6 +2,7 @@
 namespace App\Console\Commands;
 
 use App\Mail\DeployNotification;
+use App\Services\Api\MailgunnerApi;
 use App\Services\IpLoggingService;
 use App\Services\NetworkService;
 use Illuminate\Console\Command;
@@ -16,56 +17,39 @@ class MonitorCommand extends Command
 
     public function handle()
     {
+        // can't do anything if the mailgunner api is not working
+        if (!MailgunnerApi::ping()) {
+            return false;
+        }
         foreach (NetworkService::arpScan() as $mac => $data) {
             IpLoggingService::logIp($mac, $data);
         }
         $this->checkForIntrusions();
     }
 
-    /*
-        private function leaveIfAlreadyRunning()
-        {
-            if (file_exists('/tmp/artisan_util_monitor')) {
-                print "leaving";
-                exit();
-            }
-            $myPid = getmypid();
-            file_put_contents('/tmp/artisan_util_monitor', $myPid);
-            $cmd = 'ps -aux | grep artisan';
-            $results = [];
-
-            foreach (NetworkService::runCmd($cmd) as $line) {
-                print $line . "\n";
-                $flag = false;
-                if (preg_match("/php/i", $line)) {
-                    $pid = null;
-                    foreach (explode(" ", $line) as $proc) {
-                        if (!is_numeric($pid) && is_numeric($proc)) {
-                            $pid = (int)$proc;
-                        }
-                        if ($proc == 'util:monitor') {
-                            $flag = true;
-                        }
-                    }
-                }
-                if ($flag && $myPid != $pid) {
-                    dump([
-                        $line,
-                        $pid
-                    ]);
-                    print "\nleaving\n";
-                    exit();
-                }
-            }
-        }
-    */
     private function checkForIntrusions()
     {
         foreach (IpLoggingService::getNewFiles() as $file) {
             Log::info("Dumping File: {$file}");
             $data = json_decode(file_get_contents($file));
-            Mail::to(env('TO_EMAIL'))->send(new DeployNotification($data));
+            $this->deployMail($data);
+
             unlink($file);
         }
+    }
+
+    private function deployMail($data)
+    {
+        $data = json_decode('{"ip":"192.168.11.207","mac":"00:11:d9:94:30:7e","descr":"TiVo","hostname":"192.168.11.207","ts":1588432135}', true);
+        $body = view('mails.deploy', $data)->render();
+        $to = env('MAIL_TO_ADDRESS');
+        $from = env("MAIL_FROM_ADDRESS");
+        $subject = "Deploy Notification.";
+        $apiObj = app()->make(MailgunnerApi::class, [
+            'username' => env('MAILGUNNER_USERNAME'),
+            'password' => env('MAILGUNNER_PASSWORD')
+        ]);
+        $apiObj->sendMail($to, $from, $subject, $body);
+
     }
 }

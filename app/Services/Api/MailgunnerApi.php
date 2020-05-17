@@ -9,7 +9,28 @@ class MailgunnerApi extends BaseApi
     public function __construct($username, $password)
     {
         parent::__construct(env('MAILGUNNER_API_URl'));
-        $this->setToken($username, $password);
+        if ($username != 'notoken') {
+            $this->setToken($username, $password);
+        }
+    }
+
+    public static function ping()
+    {
+        try {
+            $endpoint = '/';
+            $method = 'GET';
+            $obj = new BaseApi(env('MAILGUNNER_API_URl'));
+
+            $response = $obj->call($method, $endpoint);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        $data = json_decode($obj->getResponseContent($response));
+        if ($data->message = 'pong') {
+            return true;
+        }
+        return false;
     }
 
     private function setToken($username, $password)
@@ -35,7 +56,8 @@ class MailgunnerApi extends BaseApi
         }
     }
 
-    public function sendMail($to, $from, $subject, $body){
+    public function sendMail($to, $from, $subject, $body)
+    {
         $options = ['headers' => ['token' => $this->token]];
         $method = "POST";
         $endPoint = "/send-mail";
@@ -49,6 +71,7 @@ class MailgunnerApi extends BaseApi
         $response = $this->call($method, $endPoint, $params, $options);
         return $this->getResponseContent($response);
     }
+
     public function getDone()
     {
         $options = ['headers' => ['token' => $this->token]];
