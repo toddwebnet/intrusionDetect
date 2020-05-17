@@ -37,6 +37,7 @@ class IpLoggingService
         $folder = "new";
         $storagePath .= "/{$folder}";
         $files = [];
+
         foreach (scandir($storagePath) as $file) {
             if (in_array($file, ['.', '..'])) {
                 continue;

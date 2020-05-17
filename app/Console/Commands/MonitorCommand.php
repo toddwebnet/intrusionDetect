@@ -1,13 +1,11 @@
 <?php
 namespace App\Console\Commands;
 
-use App\Mail\DeployNotification;
 use App\Services\Api\MailgunnerApi;
 use App\Services\IpLoggingService;
 use App\Services\NetworkService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class MonitorCommand extends Command
 {
@@ -19,6 +17,7 @@ class MonitorCommand extends Command
     {
         // can't do anything if the mailgunner api is not working
         if (!MailgunnerApi::ping()) {
+            Log::warning('Mailgunner Api not up, waiting until next time');
             return false;
         }
         foreach (NetworkService::arpScan() as $mac => $data) {
@@ -32,9 +31,13 @@ class MonitorCommand extends Command
         foreach (IpLoggingService::getNewFiles() as $file) {
             Log::info("Dumping File: {$file}");
             $data = json_decode(file_get_contents($file));
-            $this->deployMail($data);
 
-            unlink($file);
+            if ($this->deployMail($data)) {
+                print ".";
+                unlink($file);
+            } else {
+                print '?';
+            }
         }
     }
 
@@ -49,7 +52,12 @@ class MonitorCommand extends Command
             'username' => env('MAILGUNNER_USERNAME'),
             'password' => env('MAILGUNNER_PASSWORD')
         ]);
-        $apiObj->sendMail($to, $from, $subject, $body);
+        $response = $apiObj->sendMail($to, $from, $subject, $body);
+        $data = json_decode($response);
+        if ($data->status && $data->status == 'Success') {
+            return true;
+        }
+        return false;
 
     }
 }
