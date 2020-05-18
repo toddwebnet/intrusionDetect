@@ -30,7 +30,7 @@ class MonitorCommand extends Command
     {
         foreach (IpLoggingService::getNewFiles() as $file) {
             Log::info("Dumping File: {$file}");
-            $data = json_decode(file_get_contents($file));
+            $data = json_decode(file_get_contents($file), true);
 
             if ($this->deployMail($data)) {
                 print ".";
@@ -43,7 +43,7 @@ class MonitorCommand extends Command
 
     private function deployMail($data)
     {
-        $data = json_decode('{"ip":"192.168.11.207","mac":"00:11:d9:94:30:7e","descr":"TiVo","hostname":"192.168.11.207","ts":1588432135}', true);
+        //$data = json_decode('{"ip":"192.168.11.207","mac":"00:11:d9:94:30:7e","descr":"TiVo","hostname":"192.168.11.207","ts":1588432135}', true);
         $body = view('mails.deploy', $data)->render();
         $to = env('MAIL_TO_ADDRESS');
         $from = env("MAIL_FROM_ADDRESS");
